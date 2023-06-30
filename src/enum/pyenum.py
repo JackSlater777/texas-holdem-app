@@ -1,7 +1,11 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class PyEnum(Enum):
+class PyEnum(IntEnum):
     @classmethod
-    def list(cls):
+    def name_list(cls):
+        return list(map(lambda c: c.name, cls))
+
+    @classmethod
+    def value_list(cls):
         return list(map(lambda c: c.value, cls))

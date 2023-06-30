@@ -1,7 +1,8 @@
 from src.enum.pyenum import PyEnum
 
 
-class CardValue(PyEnum):
+class Card(PyEnum):
+    # ACE_WHEEL = 1
     DEUCE = 2
     THREE = 3
     FOUR = 4
@@ -17,14 +18,14 @@ class CardValue(PyEnum):
     ACE = 14
 
 
-class CardSuit(PyEnum):
+class Suit(PyEnum):
     DIAMONDS = 1
     CLUBS = 2
     HEARTS = 3
     SPADES = 4
 
 
-class CombinationValue(PyEnum):
+class Combination(PyEnum):
     HIGH_CART = 1
     PAIR = 2
     TWO_PAIR = 3

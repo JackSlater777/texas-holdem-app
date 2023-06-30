@@ -10,3 +10,5 @@ __pycache__
 output/
 # Confidential
 config.env
+# For debug
+2.py
