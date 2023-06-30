@@ -14,11 +14,11 @@ class Player:
         card = deck.pop(random_card_index)
         self.hand.append(card)
 
-    # def find_combination(self):
+    # def search_combination(self):
     #     for card in self.hand:
     #         pass
 
-    def find_flush(self):
+    def check_for_flush(self):
         suit_counter = {CardSuit.list()[i]: 0 for i in range(len(CardSuit.list()))}
         for card in self.hand:
             suit_counter[card.suit] += 1
@@ -117,7 +117,6 @@ if __name__ == "__main__":
         print(f"{player.name} hand:")
         for card in player.hand:
             print(f"{card.value=} {card.suit=}")
-
-
-    # player_one.find_flush()
-    # player_two.find_flush()
+        # Проверяем комбинации игроков
+        # player.search_combination()
+        player.check_for_flush()
