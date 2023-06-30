@@ -3,14 +3,16 @@ from random import randint
 
 
 class Player:
-    def __init__(self, hand):
-        self.hand = hand
+    def __init__(self):
+        self.name = None
+        self.hand = []
         self.combination = None
 
-    def get_name(self):
-        for k, v in globals().items():
-            if v is self:
-                return k
+    def take_a_card(self, deck):
+        """Взять карту из колоды"""
+        random_card_index = randint(0, len(deck) - 1)
+        card = deck.pop(random_card_index)
+        self.hand.append(card)
 
     # def find_combination(self):
     #     for card in self.hand:
@@ -26,7 +28,7 @@ class Player:
                 # self.combination = Combination(
                 #     name=
                 # )
-                (print(f"{self.get_name()} has a flush!"))
+                (print(f"{self.name} has a flush!"))
 
 
 class Card:
@@ -36,8 +38,9 @@ class Card:
 
 
 class CardDeck:
-    def __init__(self, cards):
-        self.cards = cards
+    def __init__(self):
+        self.cards = []
+        self.prepare()
 
     def prepare(self):
         """Подготавливаем полную колоду"""
@@ -50,93 +53,71 @@ class CardDeck:
                 self.cards.append(card)  # Добавляем карту в колоду
 
 
-class Board:
-    def __init__(self, cards):
-        self.cards = cards
-
-
 class Combination:
     def __init__(self, name, highest_card):
         self.name = name
         self.highest_card = highest_card
 
 
-def give_cards(num_of_cards, receiver, deck):
-    cnt = 0
-    while cnt < num_of_cards:
-        random_card_index = randint(0, len(deck)-1)
-        card = deck.pop(random_card_index)
-        receiver.append(card)
-        yield
-        cnt += 1
+list_of_names = ["player_1", "player_2", "player_3", "player_4", "player_5", "player_6", "player_7"]
 
 
 if __name__ == "__main__":
-    # num_of_players = 3
+    num_of_players = 3
+    list_of_players = [Player() for _ in range(num_of_players)]  # Создаем список игроков
+    discards = Player()  # Создаем "отбой"
+    board = Player()  # Создаем доску
+    card_deck = CardDeck()  # Создаем и наполняем колоду
 
-    card_deck = CardDeck(cards=[])  # Создаем колоду
-    card_deck.prepare()  # Наполняем колоду
+    # Выдаем по очереди по 1 карте игрокам 2 круга
+    cnt = 0
+    while cnt < 2:
+        for player in list_of_players:
+            player.take_a_card(card_deck.cards)
+        cnt += 1
 
-    # list_of_players = []
-    # for _ in range(num_of_players):
-    #     pass
+    for player in list_of_players:
+        player.name = list_of_names[list_of_players.index(player)]  # Присваиваем игрокам имя
+        print("***********************************")
+        print(f"{player.name} hand:")
+        for card in player.hand:
+            print(f"{card.value=} {card.suit=}")
 
-    player_one = Player(hand=[])  # Создаем 1 игрока
-    player_two = Player(hand=[])  # Создаем 2 игрока
-    # Создаем генераторы для игроков
-    give_cards_player_one = give_cards(2, player_one.hand, card_deck.cards)
-    give_cards_player_two = give_cards(2, player_two.hand, card_deck.cards)
-    # Выдаем по очереди по 2 карты игрокам
-    next(give_cards_player_one)
-    next(give_cards_player_two)
-    next(give_cards_player_one)
-    next(give_cards_player_two)
-
-    print("First player's hand:")
-    for card in player_one.hand:
-        print(f"{card.value=} {card.suit=}")
-    print("***********************************")
-    print("Second player's hand:")
-    for card in player_two.hand:
-        print(f"{card.value=} {card.suit=}")
-
-    board = Board(cards=[])  # Создаем доску
-    # Создаем генератор для борда
-    give_cards_desc = give_cards(5, board.cards, card_deck.cards)
-    # Выложим флоп
+    # Флоп
     print("***********************************")
     print("The board - the flop:")
-    next(give_cards_desc)
-    next(give_cards_desc)
-    next(give_cards_desc)
-    for card in board.cards:
+    discards.take_a_card(card_deck.cards)  # 1 карта в отбой
+    board.take_a_card(card_deck.cards)
+    board.take_a_card(card_deck.cards)
+    board.take_a_card(card_deck.cards)
+    for card in board.hand:
         print(f"{card.value=} {card.suit=}")
-    # Выложим терн
+
+    # Терн
     print("***********************************")
-    print("The Desk - the turn:")
-    next(give_cards_desc)
-    for card in board.cards:
+    print("The board - the turn:")
+    discards.take_a_card(card_deck.cards)  # 1 карта в отбой
+    board.take_a_card(card_deck.cards)
+    for card in board.hand:
         print(f"{card.value=} {card.suit=}")
-    # Выложим ривер
+
+    # Ривер
     print("***********************************")
-    print("The Desk - the river:")
-    next(give_cards_desc)
-    for card in board.cards:
+    print("The board - the river:")
+    discards.take_a_card(card_deck.cards)  # 1 карта в отбой
+    board.take_a_card(card_deck.cards)
+    for card in board.hand:
         print(f"{card.value=} {card.suit=}")
 
     # Добавляем карты с борда в руки игрокам для установки комбинации
-    for card in board.cards:
-        player_one.hand.append(card)
-        player_two.hand.append(card)
-    print("***********************************")
-    print("First player's hand:")
-    for card in player_one.hand:
-        print(f"{card.value=} {card.suit=}")
-    print("***********************************")
-    print("Second player's hand:")
-    for card in player_two.hand:
-        print(f"{card.value=} {card.suit=}")
+    for player in list_of_players:
+        for card in board.hand:
+            player.hand.append(card)
+        print("***********************************")
+        print(f"{player.name} hand:")
+        for card in player.hand:
+            print(f"{card.value=} {card.suit=}")
 
 
-    player_one.find_flush()
-    player_two.find_flush()
+    # player_one.find_flush()
+    # player_two.find_flush()

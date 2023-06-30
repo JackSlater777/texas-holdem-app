@@ -26,15 +26,12 @@ class CardSuit(PyEnum):
 
 class CombinationValue(PyEnum):
     HIGH_CART = 1
-    three = 3
-    four = 4
-    five = 5
-    six = 6
-    seven = 7
-    eight = 8
-    nine = 9
-    ten = 10
-    jack = 11
-    queen = 12
-    king = 13
-    ace = 14
+    PAIR = 2
+    TWO_PAIR = 3
+    THREE_OF_A_KIND = 4
+    STRAIGHT = 5
+    FLUSH = 6
+    FULL_HOUSE = 7
+    FOUR_OF_A_KIND = 8
+    STRAIGHT_FLUSH = 9
+    # FLUSH_ROYAL = 10  # Same as STRAIGHT_FLUSH but AKQJ10
