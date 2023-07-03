@@ -1,4 +1,5 @@
 from src.enum.common import Card as CardEnum, Suit as SuitEnum, Combination as CombinationEnum
+from src.model.combination import Combination
 from random import randint
 from copy import deepcopy
 
@@ -10,11 +11,20 @@ class Player:
         self.hand_info = None
         self.combination = None
 
+    def get_name(self):
+        self.name = list_of_names[list_of_players.index(self)]
+
+    def sort_a_hand_by_card_value_reversed(self):
+        """Сортировка руки по значению карт в обратном порядке"""
+        self.hand = list(sorted(self.hand, key=lambda x: x.value, reverse=True))
+
     def take_a_card(self, deck):
         """Взять карту из колоды"""
         random_card_index = randint(0, len(deck) - 1)
         card = deck.pop(random_card_index)
         self.hand.append(card)
+        if len(self.hand) > 1:
+            self.sort_a_hand_by_card_value_reversed()
 
     def get_hand_info(self):
         info = [
@@ -26,7 +36,6 @@ class Player:
             False,  # SPADES
         ]
         self.hand_info = [deepcopy(info) for _ in range(len(CardEnum.name_list()))]
-
         for i in range(len(self.hand_info)):
             self.hand_info[i][0] = CardEnum.value_list()[i]  # Устанавливаем card.value
             for card in self.hand:
@@ -54,16 +63,15 @@ class Player:
                 if cnt == 1:
                     highest_card_value = self.hand_info[i][0]
             if cnt == 5:
-                for card_enum in CardEnum:
-                    if card_enum.value == highest_card_value:
-                        highest_card_name = card_enum.name
-                        self.combination = Combination(
-                            name=CombinationEnum.STRAIGHT.name,
-                            value=CombinationEnum.STRAIGHT.value,
-                            highest_card_name=highest_card_name,
-                            highest_card_value=highest_card_value
-                        )
-                (print(f"{self.name} - {self.combination.name}, {self.combination.highest_card_name}!"))
+                # for card_enum in CardEnum:
+                #     if card_enum.value == highest_card_value:
+                #         highest_card_name = card_enum.name
+                #         self.combination = Combination(
+                #             name=CombinationEnum.STRAIGHT.name,
+                #             value=CombinationEnum.STRAIGHT.value,
+                #             highest_card_name=highest_card_name,
+                #             highest_card_value=highest_card_value
+                #         )
                 self.remove_wheel_ace_from_full_hand_info()
                 break
         self.remove_wheel_ace_from_full_hand_info()
@@ -72,17 +80,42 @@ class Player:
         suit_counter = {SuitEnum.value_list()[i]: 0 for i in range(len(SuitEnum.value_list()))}
         for card in self.hand:
             suit_counter[card.suit_value] += 1
-        print(suit_counter)
-
-        for value in suit_counter.values():
+        for key, value in suit_counter.items():
             if value >= 5:
-                # self.combination = Combination(
-                #     name=CombinationName.FLUSH.value,
-                #     value=CombinationValue.FLUSH.value,
-                #     highest_card_value=None  # ДОДЕЛАТЬ!
-                # )
-                # (print(f"{self.name} - {CombinationName.FLUSH.value}!"))
-                (print(f"{self.name} - Flush!"))
+                self.combination = Combination(
+                    name=CombinationEnum.FLUSH.name,
+                    value=CombinationEnum.FLUSH.value
+                )
+                for card in self.hand:
+                    if card.suit_value == key:
+                        self.combination.cards.append(card)
+
+    def check_for_combinations(self):
+        self.get_hand_info()
+        if self.combination is None:
+            print(f"{self.name} wanted to check the STRAIGHT_FLUSH")  # Нужна логика флеш-рояля
+            if self.combination is None:
+                print(f"{self.name} wanted to check the FOUR_OF_A_KIND")
+                if self.combination is None:
+                    print(f"{self.name} wanted to check the FULL_HOUSE")
+                    if self.combination is None:
+                        self.check_for_flush()
+                        if self.combination is None:
+                            print(f"{self.name} wanted to check the STRAIGHT")
+                            # self.check_for_straight()  # Доделать метод
+                            if self.combination is None:
+                                print(f"{self.name} wanted to check the THREE_OF_A_KIND")
+                                if self.combination is None:
+                                    print(f"{self.name} wanted to check the TWO_PAIR")
+                                    if self.combination is None:
+                                        print(f"{self.name} wanted to check the PAIR")
+                                        if self.combination is None:
+                                            print(f"{self.name} wanted to check the HIGH_CART")
+
+        if self.combination:
+            print(f"{self.name} - {self.combination.name}!")
+            for card in self.combination.cards:
+                print(card.name, card.suit_name)
 
 
 class Card:
@@ -111,23 +144,29 @@ class Deck:
                 self.cards.append(card)  # Добавляем карту в колоду
 
 
-class Combination:
-    def __init__(self, name, value, highest_card_name, highest_card_value):
-        self.name = name
-        self.value = value
-        self.highest_card_name = highest_card_name
-        self.highest_card_value = highest_card_value
-
-
 list_of_names = ["player_1", "player_2", "player_3", "player_4", "player_5", "player_6", "player_7"]
+
+
+# # ПЕРЕМЕСТИТЬ В CONFIG ???
+# def get_name(list_of_players):
+#     """Присваиваем игрокам имя"""
+#     for player in list_of_players:
+#         player.name = list_of_names[list_of_players.index(player)]
+
+
+def take_cards():
+    """"""
 
 
 if __name__ == "__main__":
     # TO_DO:
-    # - написать метод перемешивания колоды
+    # - сравнение комбинаций (перегрузка операторов)
+    # - метод перемешивания колоды после её генерации
 
     num_of_players = 3
     list_of_players = [Player() for _ in range(num_of_players)]  # Создаем список игроков
+    for player in list_of_players:
+        player.get_name()  # Присваиваем игрокам имена
     discards = Player()  # Создаем "отбой"
     board = Player()  # Создаем доску
     deck = Deck()  # Создаем и наполняем колоду
@@ -140,7 +179,7 @@ if __name__ == "__main__":
         cnt += 1
 
     for player in list_of_players:
-        player.name = list_of_names[list_of_players.index(player)]  # Присваиваем игрокам имя
+        # player.name = list_of_names[list_of_players.index(player)]  # Присваиваем игрокам имя
         print("***********************************")
         print(f"{player.name} hand:")
         for card in player.hand:
@@ -177,11 +216,9 @@ if __name__ == "__main__":
         for card in board.hand:
             player.hand.append(card)
         print("***********************************")
+        player.sort_a_hand_by_card_value_reversed()
         print(f"{player.name} hand:")
         for card in player.hand:
             print(f"{card.name=} {card.suit_name=}")
         # Проверяем комбинации игроков
-        # player.search_combination()
-        player.get_hand_info()
-        # player.check_for_flush()
-        player.check_for_straight()
+        player.check_for_combinations()
